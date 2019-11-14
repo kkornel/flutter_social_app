@@ -33,7 +33,7 @@ class NetworkUtils {
       // TODO: Think of better approach, after we'll have more POST methods done.
       // final jsonResponse2 = jsonDecode(response.body);
       // throw Exception();
-      throw ('An error occured (${response.statusCode}): ${response.body}');
+      // throw ('An error occured (${response.statusCode}): ${response.body}');
     }
 
     // final jsonResponse = jsonDecode(response.body);

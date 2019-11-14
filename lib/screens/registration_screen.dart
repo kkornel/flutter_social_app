@@ -1,5 +1,6 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_social_app/components/input_validation_text.dart';
 import 'package:flutter_social_app/components/rounded_button.dart';
 import 'package:flutter_social_app/constants.dart';
 import 'package:flutter_social_app/screens/login_screen.dart';
@@ -15,17 +16,54 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   String email;
-  String emailMsg = 'dsadasdasdsa';
   String username;
-  String usernameMsg = '';
   String password1;
-  String password1Msg = '';
   String password2;
-  String password2Msg = '';
   bool _showSpinner = false;
 
-  Flushbar flush;
-  bool _wasButtonClicked;
+  Map errorTextFieldsMap = {
+    'email': '',
+    'username': '',
+    'password': '',
+  };
+
+  void _resetErrorMap() {
+    errorTextFieldsMap = {
+      'email': '',
+      'username': '',
+      'password': '',
+    };
+  }
+
+  void _showFlashBar(context, String _email) {
+    Flushbar(
+      margin: EdgeInsets.all(8.0),
+      borderRadius: 30.0,
+      backgroundColor: Colors.green,
+      message: 'Account created for: $_email',
+      icon: Icon(
+        Icons.done,
+        color: Colors.white,
+      ),
+      mainButton: FlatButton(
+        onPressed: () {
+          // Navigator.pushNamed(context, LoginScreen.id);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginScreen(
+                emailFromRegister: _email,
+              ),
+            ),
+          );
+        },
+        child: Text(
+          "Sign In",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    )..show(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +100,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: 'Enter your email'),
               ),
               InputValidationText(
-                msg: this.emailMsg,
+                msg: errorTextFieldsMap['email'],
               ),
               TextField(
                 keyboardType: TextInputType.text,
@@ -75,7 +113,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: 'Enter your username'),
               ),
               InputValidationText(
-                msg: this.usernameMsg,
+                msg: errorTextFieldsMap['username'],
               ),
               TextField(
                 obscureText: true,
@@ -89,7 +127,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: 'Enter your password'),
               ),
               InputValidationText(
-                msg: this.password1Msg,
+                msg: errorTextFieldsMap['password'],
               ),
               TextField(
                 obscureText: true,
@@ -103,51 +141,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: 'Confirm your password'),
               ),
               InputValidationText(
-                msg: this.password2Msg,
+                msg: errorTextFieldsMap['password'],
               ),
               RoundedButton(
                 text: 'Sign Me Up!',
                 color: Colors.yellowAccent,
                 onPressed: () async {
-                  flush = Flushbar<bool>(
-                    // title: "Hey Ninja",
-                    margin: EdgeInsets.all(8.0),
-                    borderRadius: 20.0,
-                    backgroundColor: Colors.green,
-                    message: "Account created for: ksadasdasodihaskdlj@wp.pl",
-                    icon: Icon(
-                      Icons.done,
-                      color: Colors.white,
-                    ),
-                    mainButton: FlatButton(
-                      onPressed: () {
-                        flush.dismiss(true); // result = true
-                        // Navigator.pushNamed(context, LoginScreen.id);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginScreen(
-                              emailFromRegister: 'dsadasdsa',
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        "Back to Login",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ) // <bool> is the type of the result passed to dismiss() and collected by show().then((result){})
-                    ..show(context).then((result) {
-                      setState(() {
-                        // setState() is optional here
-                        _wasButtonClicked = result;
-                      });
-                    });
+                  _resetErrorMap();
 
-                  // setState(() {
-                  //   _showSpinner = true;
-                  // });
+                  setState(() {
+                    _showSpinner = true;
+                  });
+
                   try {
                     Map data = {
                       'email': email,
@@ -160,106 +165,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         await NetworkUtils.post('users/register/', data);
 
                     if (response['response'] == 'Success') {
-                      flush = Flushbar<bool>(
-                        title: "Hey Ninja",
-                        margin: EdgeInsets.all(8.0),
-                        borderRadius: 20.0,
-                        backgroundColor: Colors.red,
-                        message:
-                            "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
-                        icon: Icon(
-                          Icons.done_outline,
-                          color: Colors.white,
-                        ),
-                        mainButton: FlatButton(
-                          onPressed: () {
-                            flush.dismiss(true); // result = true
-                          },
-                          child: Text(
-                            "ADD",
-                            style: TextStyle(color: Colors.amber),
-                          ),
-                        ),
-                      ) // <bool> is the type of the result passed to dismiss() and collected by show().then((result){})
-                        ..show(context).then((result) {
-                          setState(() {
-                            // setState() is optional here
-                            _wasButtonClicked = result;
-                          });
-                        });
-
-                      // Flushbar(
-                      //   message: "Invalid login or password.",
-                      //   margin: EdgeInsets.all(8.0),
-                      //   borderRadius: 20.0,
-                      //   backgroundColor: Colors.red,
-                      //   icon: Icon(
-                      //     Icons.remove_circle_outline,
-                      //     size: 28.0,
-                      //     color: Colors.white,
-                      //   ),
-                      //   duration: Duration(seconds: 3),
-                      // )..show(context);
-
-                      var s = LoginScreen.id;
-                      // Navigator.pushNamed(context, LoginScreen.id);
+                      /*
+                      * StatusCode: 200 -> json: {response: Success, emial: kornel@wp.pl, username: kornel, token: bb0a2edc5044623b93f6653e4188d4e13f36287e} 
+                      */
+                      _showFlashBar(context, response['email']);
+                    } else {
+                      /*
+                      * StatusCode: 200 -> json: {email:    [Enter a valid email address.]} 
+                      * StatusCode: 200 -> json: {email:    [my user with this email address already exists.]}
+                      * StatusCode: 200 -> json: {username: [my user with this username already exists.]} 
+                      * StatusCode: 400 -> json: {password: Password must contain at least 8 characters.}
+                      * StatusCode: 400 -> json: {password: Password must much} 
+                      */
+                      setState(() {
+                        response.forEach((k, v) => {
+                              errorTextFieldsMap[k] = v
+                                  .toString()
+                                  .replaceAll(new RegExp(r'[^\s\w]'), '')
+                                  .replaceAll(new RegExp('my user'), 'User')
+                            });
+                      });
                     }
-
-                    print('json: $response');
-
-                    print(response['response']);
-
-                    // setState(() {
-                    //   this.emailMsg = 'sss';
-                    // });
-                    // UserAccount.TOKEN = responseData['token'];
-
-                    // // TODO: get full user profile
-
-                    // Navigator.pushNamed(context, HomeScreen.id);
-
-                    // Flushbar(
-                    //   message: "Invalid login or password.",
-                    //   margin: EdgeInsets.all(8.0),
-                    //   borderRadius: 20.0,
-                    //   backgroundColor: Colors.red,
-                    //   icon: Icon(
-                    //     Icons.remove_circle_outline,
-                    //     size: 28.0,
-                    //     color: Colors.white,
-                    //   ),
-                    //   duration: Duration(seconds: 3),
-                    // )..show(context);
-
-                    // setState(() {
-                    //   _showSpinner = false;
-                    // });
                   } catch (e) {
                     print(e);
                   }
+
+                  setState(() {
+                    _showSpinner = false;
+                  });
                 },
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class InputValidationText extends StatelessWidget {
-  InputValidationText({@required this.msg});
-
-  final String msg;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        margin: EdgeInsets.only(top: 0.0, bottom: 5.0),
-        child: Text(
-          this.msg,
-          style: TextStyle(color: Colors.red),
         ),
       ),
     );
