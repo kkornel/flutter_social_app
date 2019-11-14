@@ -2,21 +2,42 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_app/components/rounded_button.dart';
 import 'package:flutter_social_app/constants.dart';
+import 'package:flutter_social_app/screens/password_reset.dart';
 import 'package:flutter_social_app/utils/network_utils.dart';
 import 'package:flutter_social_app/utils/user_account.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+import 'home_screen.dart';
+
 class LoginScreen extends StatefulWidget {
   static String id = "login_screen";
+  final String emailFromRegister;
+
+  LoginScreen({this.emailFromRegister});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String email;
-  String password;
+  String email = '';
+  String password = '';
   bool _showSpinner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    updateUI(widget.emailFromRegister);
+  }
+
+  void updateUI(String emailFromRegister) {
+    setState(() {
+      if (emailFromRegister == null) {
+        return;
+      }
+      email = emailFromRegister;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 48.0,
               ),
-              TextField(
+              TextFormField(
+                initialValue: email,
                 keyboardType: TextInputType.emailAddress,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
@@ -50,7 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   email = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Enter your email'),
+                  hintText: 'Enter your email',
+                ),
               ),
               SizedBox(
                 height: 8.0,
@@ -90,6 +113,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       print(responseData);
 
                       UserAccount.TOKEN = responseData['token'];
+
+                      // TODO: get full user profile
+
+                      Navigator.pushNamed(context, HomeScreen.id);
                     } catch (exception) {
                       print(exception);
                       Flushbar(
@@ -114,6 +141,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 },
               ),
+              SizedBox(
+                height: 58.0,
+              ),
+              Center(
+                child: Container(
+                  padding: EdgeInsets.all(16.0),
+                  color: Colors.red,
+                  child: GestureDetector(
+                      child: Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      onTap: () {
+                        print('cli');
+                        Navigator.pushNamed(context, PasswordResetScreen.id);
+                      }),
+                ),
+              )
             ],
           ),
         ),

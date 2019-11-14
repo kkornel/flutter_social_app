@@ -26,6 +26,9 @@ class NetworkUtils {
       },
     );
 
+    print('StatusCode: ${response.statusCode}');
+    print('Response.body: ${response.body}');
+
     if (response.statusCode >= 400) {
       // TODO: Think of better approach, after we'll have more POST methods done.
       // final jsonResponse2 = jsonDecode(response.body);
