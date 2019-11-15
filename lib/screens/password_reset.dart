@@ -1,7 +1,13 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_social_app/components/input_validation_text.dart';
 import 'package:flutter_social_app/components/rounded_button.dart';
-import 'package:flutter_social_app/constants.dart';
+import 'package:flutter_social_app/screens/login_screen.dart';
+import 'package:flutter_social_app/utils/constants.dart';
+import 'package:flutter_social_app/utils/network_utils.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:flutter_social_app/utils/constants_strings.dart' as STRINGS;
+import 'package:flutter_social_app/utils/constants_api.dart' as API;
 
 class PasswordResetScreen extends StatefulWidget {
   static String id = "password_reset_screen";
@@ -11,14 +17,71 @@ class PasswordResetScreen extends StatefulWidget {
 }
 
 class _PasswordResetScreenState extends State<PasswordResetScreen> {
-  String email;
+  String _email;
+  String _emailErrorMsg = '';
 
   bool _showSpinner = false;
+
+  void _showFlashBar(context, String email, String msg) {
+    Flushbar(
+      margin: EdgeInsets.all(8.0),
+      borderRadius: 30.0,
+      backgroundColor: Colors.green,
+      message: msg,
+      icon: Icon(
+        Icons.done,
+        color: Colors.white,
+      ),
+      mainButton: FlatButton(
+        onPressed: () {
+          // Navigator.pushNamed(context, LoginScreen.id);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginScreen(
+                emailFromRegister: email,
+              ),
+            ),
+          );
+        },
+        child: Text(
+          STRINGS.BACK_TO_LOGIN,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    )..show(context);
+  }
+
+  Future<void> _resetPassword() async {
+    _emailErrorMsg = '';
+
+    setState(() {
+      _showSpinner = true;
+    });
+
+    try {
+      var responseData = await NetworkUtils.resetUserPassword(_email);
+
+      if (responseData[API.FIELD_RESPONSE] == API.SUCCESS) {
+        _showFlashBar(context, _email, STRINGS.MSG_PASSWORD_EMAIL_SENT);
+      } else {
+        setState(() {
+          _emailErrorMsg = responseData[API.FIELD_CONTENT];
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() {
+      _showSpinner = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: ModalProgressHUD(
         inAsyncCall: _showSpinner,
         child: Padding(
@@ -29,79 +92,48 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             children: <Widget>[
               Flexible(
                 child: Hero(
-                  tag: 'logo',
+                  tag: kHeroTagLogo,
                   child: Container(
                     height: 200.0,
-                    child: Image.asset('images/logo.png'),
+                    child: Image.asset(kImageMainLogo),
                   ),
                 ),
               ),
-              Container(
-                child: Text('We got you, no worries.'),
+              SizedBox(
+                height: 24.0,
+              ),
+              Center(
+                child: Container(
+                  child: Text(
+                    STRINGS.WE_GOT_YOU,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
               SizedBox(
-                height: 48.0,
+                height: 16.0,
               ),
               TextField(
                 keyboardType: TextInputType.emailAddress,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  email = value;
+                  _email = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Enter your email'),
+                    hintText: STRINGS.ENTER_EMAIL),
+              ),
+              InputValidationText(
+                msg: _emailErrorMsg,
               ),
               SizedBox(
                 height: 24.0,
               ),
               RoundedButton(
-                text: 'Reset',
+                text: STRINGS.RESET,
                 color: Colors.yellowAccent,
                 onPressed: () async {
-                  // setState(() {
-                  //   _showSpinner = true;
-                  // });
-                  try {
-                    // final authResult = await _auth.signInWithEmailAndPassword(
-                    // email: email, password: password);
-                    // if (authResult.user != null) {
-                    // Navigator.pushNamed(context, ChatScreen.id);
-                    // }
-
-                    // try {
-                    //   var responseData = await NetworkUtils.post('users/login/',
-                    //       {'username': this.email, 'password': this.password});
-
-                    //   print(responseData);
-
-                    //   UserAccount.TOKEN = responseData['token'];
-
-                    //   // TODO: get full user profile
-
-                    //   Navigator.pushNamed(context, HomeScreen.id);
-                    // } catch (exception) {
-                    //   print(exception);
-                    //   Flushbar(
-                    //     message: "Invalid login or password.",
-                    //     margin: EdgeInsets.all(8.0),
-                    //     borderRadius: 20.0,
-                    //     backgroundColor: Colors.red,
-                    //     icon: Icon(
-                    //       Icons.remove_circle_outline,
-                    //       size: 28.0,
-                    //       color: Colors.white,
-                    //     ),
-                    //     duration: Duration(seconds: 3),
-                    //   )..show(context);
-                    // }
-
-                    // setState(() {
-                    //   _showSpinner = false;
-                    // });
-                  } catch (e) {
-                    print(e);
-                  }
+                  await _resetPassword();
                 },
               ),
             ],

@@ -1,13 +1,16 @@
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_app/components/rounded_button.dart';
-import 'package:flutter_social_app/constants.dart';
 import 'package:flutter_social_app/screens/password_reset.dart';
+import 'package:flutter_social_app/utils/constants.dart';
 import 'package:flutter_social_app/utils/network_utils.dart';
-import 'package:flutter_social_app/utils/user_account.dart';
+import 'package:flutter_social_app/utils/constants_strings.dart' as STRINGS;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'dart:developer' as dev;
 
+import 'package:flutter_social_app/utils/logger.dart';
 import 'home_screen.dart';
+import 'package:flutter_social_app/utils/user_account.dart';
+import 'package:flushbar/flushbar.dart';
 
 class LoginScreen extends StatefulWidget {
   static String id = "login_screen";
@@ -20,22 +23,60 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String email = '';
-  String password = '';
+  String _email = '';
+  String _password = '';
   bool _showSpinner = false;
 
   @override
   void initState() {
     super.initState();
-    updateUI(widget.emailFromRegister);
+    _updateUI(widget.emailFromRegister);
   }
 
-  void updateUI(String emailFromRegister) {
+  void _updateUI(String emailFromRegister) {
     setState(() {
       if (emailFromRegister == null) {
         return;
       }
-      email = emailFromRegister;
+      _email = emailFromRegister;
+    });
+  }
+
+  Future<void> _loginUser() async {
+    setState(() {
+      _showSpinner = true;
+    });
+
+    try {
+      String token = await NetworkUtils.loginUser(_email, _password);
+
+      print('login(): Got token: $token');
+      log('login(): Got token: $token');
+      dev.log('login(): Got token: $token', name: 'login');
+      dev.log('login(): Got token: $token');
+      UserAccount.TOKEN = token;
+
+      // TODO: get full user profile
+
+      Navigator.pushNamed(context, HomeScreen.id);
+    } catch (exception) {
+      print(exception);
+      Flushbar(
+        message: STRINGS.ERROR_INVALID_LOGIN_OR_PASSWORD,
+        margin: EdgeInsets.all(8.0),
+        borderRadius: 20.0,
+        backgroundColor: Colors.red,
+        icon: Icon(
+          Icons.remove_circle_outline,
+          size: 28.0,
+          color: Colors.white,
+        ),
+        duration: Duration(seconds: 5),
+      )..show(context);
+    }
+
+    setState(() {
+      _showSpinner = false;
     });
   }
 
@@ -53,10 +94,10 @@ class _LoginScreenState extends State<LoginScreen> {
             children: <Widget>[
               Flexible(
                 child: Hero(
-                  tag: 'logo',
+                  tag: kHeroTagLogo,
                   child: Container(
                     height: 200.0,
-                    child: Image.asset('images/logo.png'),
+                    child: Image.asset(kImageMainLogo),
                   ),
                 ),
               ),
@@ -64,15 +105,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 48.0,
               ),
               TextFormField(
-                initialValue: email,
+                initialValue: _email,
                 keyboardType: TextInputType.emailAddress,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  email = value;
+                  _email = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                  hintText: 'Enter your email',
+                  hintText: STRINGS.ENTER_EMAIL,
                 ),
               ),
               SizedBox(
@@ -84,61 +125,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  password = value;
+                  _password = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Enter your password'),
+                    hintText: STRINGS.ENTER_PASSWORD),
               ),
               SizedBox(
                 height: 24.0,
               ),
               RoundedButton(
-                text: 'Log In',
+                text: STRINGS.LOG_IN,
                 color: Colors.yellowAccent,
                 onPressed: () async {
-                  setState(() {
-                    _showSpinner = true;
-                  });
-                  try {
-                    // final authResult = await _auth.signInWithEmailAndPassword(
-                    // email: email, password: password);
-                    // if (authResult.user != null) {
-                    // Navigator.pushNamed(context, ChatScreen.id);
-                    // }
-
-                    try {
-                      var responseData = await NetworkUtils.post('users/login/',
-                          {'username': this.email, 'password': this.password});
-
-                      print(responseData);
-
-                      UserAccount.TOKEN = responseData['token'];
-
-                      // TODO: get full user profile
-
-                      Navigator.pushNamed(context, HomeScreen.id);
-                    } catch (exception) {
-                      print(exception);
-                      Flushbar(
-                        message: "Invalid login or password.",
-                        margin: EdgeInsets.all(8.0),
-                        borderRadius: 20.0,
-                        backgroundColor: Colors.red,
-                        icon: Icon(
-                          Icons.remove_circle_outline,
-                          size: 28.0,
-                          color: Colors.white,
-                        ),
-                        duration: Duration(seconds: 3),
-                      )..show(context);
-                    }
-
-                    setState(() {
-                      _showSpinner = false;
-                    });
-                  } catch (e) {
-                    print(e);
-                  }
+                  await _loginUser();
                 },
               ),
               SizedBox(
@@ -150,14 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.red,
                   child: GestureDetector(
                       child: Text(
-                        "Forgot Password?",
+                        STRINGS.MSG_FORGOT_PASSWORD,
                         style: TextStyle(
                           decoration: TextDecoration.underline,
                           color: Colors.blue,
                         ),
                       ),
                       onTap: () {
-                        print('cli');
                         Navigator.pushNamed(context, PasswordResetScreen.id);
                       }),
                 ),

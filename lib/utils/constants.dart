@@ -17,3 +17,6 @@ const kEmailPasswordInputDecoration = InputDecoration(
     borderRadius: BorderRadius.all(Radius.circular(32.0)),
   ),
 );
+
+const kHeroTagLogo = 'logo';
+const kImageMainLogo = 'images/logo.png';

@@ -2,8 +2,10 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_app/components/input_validation_text.dart';
 import 'package:flutter_social_app/components/rounded_button.dart';
-import 'package:flutter_social_app/constants.dart';
 import 'package:flutter_social_app/screens/login_screen.dart';
+import 'package:flutter_social_app/utils/constants.dart';
+import 'package:flutter_social_app/utils/constants_api.dart' as API;
+import 'package:flutter_social_app/utils/constants_strings.dart' as STRINGS;
 import 'package:flutter_social_app/utils/network_utils.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -15,10 +17,10 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  String email;
-  String username;
-  String password1;
-  String password2;
+  String _email;
+  String _username;
+  String _password;
+  String _password2;
   bool _showSpinner = false;
 
   Map errorTextFieldsMap = {
@@ -40,7 +42,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       margin: EdgeInsets.all(8.0),
       borderRadius: 30.0,
       backgroundColor: Colors.green,
-      message: 'Account created for: $_email',
+      message: STRINGS.MSG_ACCOUNT_CREATED_FOR + ' $_email',
       icon: Icon(
         Icons.done,
         color: Colors.white,
@@ -58,11 +60,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           );
         },
         child: Text(
-          "Sign In",
+          STRINGS.SIGN_IN,
           style: TextStyle(color: Colors.white),
         ),
       ),
     )..show(context);
+  }
+
+  Future<void> _registerUser(context) async {
+    _resetErrorMap();
+
+    setState(() {
+      _showSpinner = true;
+    });
+
+    try {
+      var response = await NetworkUtils.registerUser(
+          _email, _username, _password, _password2);
+
+      print(response);
+
+      if (response[API.FIELD_RESPONSE] == API.SUCCESS) {
+        _showFlashBar(context, response[API.FIELD_EMAIL]);
+      } else {
+        setState(() {
+          response.forEach((k, v) => errorTextFieldsMap[k] = v);
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() {
+      _showSpinner = false;
+    });
   }
 
   @override
@@ -79,10 +110,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             children: <Widget>[
               Flexible(
                 child: Hero(
-                  tag: 'logo',
+                  tag: kHeroTagLogo,
                   child: Container(
                     height: 200.0,
-                    child: Image.asset('images/logo.png'),
+                    child: Image.asset(kImageMainLogo),
                   ),
                 ),
               ),
@@ -94,10 +125,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  email = value;
+                  _email = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Enter your email'),
+                    hintText: STRINGS.ENTER_EMAIL),
               ),
               InputValidationText(
                 msg: errorTextFieldsMap['email'],
@@ -107,10 +138,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  username = value;
+                  _username = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Enter your username'),
+                    hintText: STRINGS.ENTER_USERNAME),
               ),
               InputValidationText(
                 msg: errorTextFieldsMap['username'],
@@ -121,10 +152,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  password1 = value;
+                  _password = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Enter your password'),
+                    hintText: STRINGS.ENTER_PASSWORD),
               ),
               InputValidationText(
                 msg: errorTextFieldsMap['password'],
@@ -135,64 +166,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  password2 = value;
+                  _password2 = value;
                 },
                 decoration: kEmailPasswordInputDecoration.copyWith(
-                    hintText: 'Confirm your password'),
+                    hintText: STRINGS.MSG_CONFRIM_PASSWORD),
               ),
               InputValidationText(
                 msg: errorTextFieldsMap['password'],
               ),
               RoundedButton(
-                text: 'Sign Me Up!',
+                text: STRINGS.MSG_SIGN_ME_UP,
                 color: Colors.yellowAccent,
                 onPressed: () async {
-                  _resetErrorMap();
-
-                  setState(() {
-                    _showSpinner = true;
-                  });
-
-                  try {
-                    Map data = {
-                      'email': email,
-                      'username': username,
-                      'password': password1,
-                      'password2': password2,
-                    };
-
-                    var response =
-                        await NetworkUtils.post('users/register/', data);
-
-                    if (response['response'] == 'Success') {
-                      /*
-                      * StatusCode: 200 -> json: {response: Success, emial: kornel@wp.pl, username: kornel, token: bb0a2edc5044623b93f6653e4188d4e13f36287e} 
-                      */
-                      _showFlashBar(context, response['email']);
-                    } else {
-                      /*
-                      * StatusCode: 200 -> json: {email:    [Enter a valid email address.]} 
-                      * StatusCode: 200 -> json: {email:    [my user with this email address already exists.]}
-                      * StatusCode: 200 -> json: {username: [my user with this username already exists.]} 
-                      * StatusCode: 400 -> json: {password: Password must contain at least 8 characters.}
-                      * StatusCode: 400 -> json: {password: Password must much} 
-                      */
-                      setState(() {
-                        response.forEach((k, v) => {
-                              errorTextFieldsMap[k] = v
-                                  .toString()
-                                  .replaceAll(new RegExp(r'[^\s\w]'), '')
-                                  .replaceAll(new RegExp('my user'), 'User')
-                            });
-                      });
-                    }
-                  } catch (e) {
-                    print(e);
-                  }
-
-                  setState(() {
-                    _showSpinner = false;
-                  });
+                  await _registerUser(context);
                 },
               ),
             ],
