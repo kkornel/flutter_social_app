@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_app/utils/constants.dart';
+import 'package:flutter_social_app/utils/constants_strings.dart' as STRINGS;
 
 class HomeScreen extends StatefulWidget {
   static String id = "home_screen";
@@ -16,19 +18,13 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.grey,
       body: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Image.asset('images/logo.png'),
-              Text('Social APP'),
-            ],
+          MaterialButton(
+            onPressed: null,
+            child: Text(STRINGS.LOGIN),
           ),
           MaterialButton(
             onPressed: null,
-            child: Text('Login'),
-          ),
-          MaterialButton(
-            onPressed: null,
-            child: Text('Register'),
+            child: Text(STRINGS.REGISTER),
           ),
         ],
       ),

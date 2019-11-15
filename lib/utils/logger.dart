@@ -1,13 +1,33 @@
 import 'package:logger/logger.dart';
 
+// print('login(): Got token: $token');
+// log('login(): Got token: $token');
+// dev.log('login(): Got token: $token', name: 'login');
+// dev.log('login(): Got token: $token');
+
 final logger = getLogger();
 
-void log(String msg) {
-  // logger.d(msg);
-  // logger.i(msg);
-  // logger.e(msg);
-  // logger.v(msg);
-  // logger.w(msg);
+void logd(String msg) {
+  logger.d(msg);
+}
+
+void logi(String msg) {
+  logger.i(msg);
+}
+
+void loge(String msg) {
+  logger.e(msg);
+}
+
+void logv(String msg) {
+  logger.v(msg);
+}
+
+void logw(String msg) {
+  logger.w(msg);
+}
+
+void logwtf(String msg) {
   logger.wtf(msg);
 }
 

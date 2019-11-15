@@ -4,6 +4,7 @@ const String PATH_BASE_API = 'http://192.168.0.199:8000/';
 const String PATH_LOGIN = 'api/users/login/';
 const String PATH_REGISTER = 'api/users/register/';
 const String PATH_PASSWORD_RESET = 'rest-auth/password/reset/';
+const String PATH_GET_USER_PROFILE = 'api/users/test/';
 
 const String FIELD_USERNAME = 'username';
 const String FIELD_EMAIL = 'email';
@@ -16,3 +17,7 @@ const String FIELD_DETAIL = 'detail';
 const String FIELD_CONTENT = 'content';
 const String SUCCESS = 'Success';
 const String ERROR = 'error';
+const String FIELD_BIO = 'bio';
+const String FIELD_CITY = 'city';
+const String FIELD_WEBSITE = 'website';
+const String FIELD_IMAGE = 'image';

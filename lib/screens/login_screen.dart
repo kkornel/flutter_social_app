@@ -7,7 +7,6 @@ import 'package:flutter_social_app/utils/constants_strings.dart' as STRINGS;
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'dart:developer' as dev;
 
-import 'package:flutter_social_app/utils/logger.dart';
 import 'home_screen.dart';
 import 'package:flutter_social_app/utils/user_account.dart';
 import 'package:flushbar/flushbar.dart';
@@ -49,14 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       String token = await NetworkUtils.loginUser(_email, _password);
+      dev.log('Got token: $token', name: 'login()');
 
-      print('login(): Got token: $token');
-      log('login(): Got token: $token');
-      dev.log('login(): Got token: $token', name: 'login');
-      dev.log('login(): Got token: $token');
       UserAccount.TOKEN = token;
 
-      // TODO: get full user profile
+      await NetworkUtils.getUserProfile();
 
       Navigator.pushNamed(context, HomeScreen.id);
     } catch (exception) {

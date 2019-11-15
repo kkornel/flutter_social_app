@@ -4,6 +4,7 @@ import 'package:flutter_social_app/screens/login_screen.dart';
 import 'package:flutter_social_app/screens/password_reset.dart';
 import 'package:flutter_social_app/screens/registration_screen.dart';
 import 'package:flutter_social_app/screens/welcome_screen.dart';
+import 'package:flutter_social_app/utils/constants.dart';
 
 void main() => runApp(MyApp());
 
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     // return ChangeNotifierProvider<UserAccount>(
     // builder: (context) => UserAccount(),
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: kAppName,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

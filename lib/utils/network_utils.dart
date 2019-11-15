@@ -1,19 +1,76 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
 import 'package:flutter_social_app/utils/constants_api.dart' as API;
 import 'package:http/http.dart' as http;
+import 'package:flutter_social_app/utils/user_account.dart';
 
 class NetworkUtils {
-  static const BASE_API_URL = 'http://192.168.0.199:8000/api/';
-
   static Future<dynamic> get(String url) async {
-    final response = await http.get(url);
+    final String fullUrl = API.PATH_BASE_API + url;
 
-    if (response.statusCode >= 400) {
-      throw ('An error occured (${response.statusCode}): ${response.body}');
+    final Map<String, String> headers = {};
+
+    if (UserAccount.TOKEN != '') {
+      headers['Authorization'] = 'Token ' + UserAccount.TOKEN;
     }
 
-    return jsonDecode(response.body);
+    final response = await http.get(fullUrl, headers: headers);
+
+    dev.log('StatusCode: ${response.statusCode}', name: 'get()');
+    dev.log('Body: ${response.body}', name: 'get()');
+
+    return response;
+  }
+
+  static Future<dynamic> post(String url, Map data) async {
+    final body = jsonEncode(data);
+
+    final String fullUrl = API.PATH_BASE_API + url;
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    if (UserAccount.TOKEN != '') {
+      headers['Authorization'] = 'Token ' + UserAccount.TOKEN;
+    }
+
+    final response = await http.post(
+      fullUrl,
+      body: body,
+      headers: headers,
+    );
+
+    dev.log('StatusCode: ${response.statusCode}', name: 'post()');
+    dev.log('Body: ${response.body}', name: 'post()');
+
+    return response;
+
+    // if (response.statusCode >= 400) {
+    //   // TODO: Think of better approach, after we'll have more POST methods done.
+    //   throw ('post(): An error occured (${response.statusCode}): ${response.body}');
+    // }
+
+    // final jsonResponse = jsonDecode(response.body);
+    // return jsonResponse;
+  }
+
+  /// Returns user's profile if sucessful.
+  static Future<dynamic> getUserProfile() async {
+    /*
+    * StatusCode: 200 -> json: {bio: xqcL, city: Toronto, CA, website: www.wpp.pl, image: /media/default.jpg, username: kornel, email: kornel@wp.pl}
+    */
+
+    var response = await get(API.PATH_GET_USER_PROFILE);
+
+    final jsonResponse = jsonDecode(response.body);
+
+    UserAccount.PROFILE.printProfile();
+    UserAccount.PROFILE.loadFromJson(jsonResponse);
+    UserAccount.PROFILE.printProfile();
+
+    return jsonResponse;
   }
 
   /// Returns map containing:
@@ -112,32 +169,5 @@ class NetworkUtils {
     }
 
     return responseData;
-  }
-
-  static Future<dynamic> post(String url, Map data) async {
-    var body = jsonEncode(data);
-
-    final String fullUrl = API.PATH_BASE_API + url;
-
-    final response = await http.post(
-      fullUrl,
-      body: body,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-
-    print('post(): StatusCode: ${response.statusCode}');
-    print('post(): Response.body: ${response.body}');
-
-    return response;
-
-    // if (response.statusCode >= 400) {
-    //   // TODO: Think of better approach, after we'll have more POST methods done.
-    //   throw ('post(): An error occured (${response.statusCode}): ${response.body}');
-    // }
-
-    // final jsonResponse = jsonDecode(response.body);
-    // return jsonResponse;
   }
 }

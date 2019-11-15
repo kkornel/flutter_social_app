@@ -20,3 +20,4 @@ const kEmailPasswordInputDecoration = InputDecoration(
 
 const kHeroTagLogo = 'logo';
 const kImageMainLogo = 'images/logo.png';
+const kAppName = 'Social APP';

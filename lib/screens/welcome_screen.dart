@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_social_app/components/rounded_button.dart';
 import 'package:flutter_social_app/screens/login_screen.dart';
 import 'package:flutter_social_app/screens/registration_screen.dart';
+import 'package:flutter_social_app/utils/constants.dart';
+import 'package:flutter_social_app/utils/constants_strings.dart' as STRINGS;
 
 class WelcomeScreen extends StatefulWidget {
   static String id = "welcome_screen";
@@ -73,10 +75,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               // mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Hero(
-                  tag: 'logo',
+                  tag: kHeroTagLogo,
                   child: Container(
                     height: animation.value * 100,
-                    child: Image.asset('images/logo.png'),
+                    child: Image.asset(kImageMainLogo),
                   ),
                 ),
                 Row(
@@ -107,14 +109,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               height: 48.0,
             ),
             RoundedButton(
-              text: 'Login',
+              text: STRINGS.LOGIN,
               color: Colors.red,
               onPressed: () {
                 Navigator.pushNamed(context, LoginScreen.id);
               },
             ),
             RoundedButton(
-              text: 'Register',
+              text: STRINGS.REGISTER,
               color: Colors.teal,
               onPressed: () {
                 Navigator.pushNamed(context, RegistrationScreen.id);
