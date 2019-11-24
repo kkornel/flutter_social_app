@@ -1,44 +1,115 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_social_app/utils/date_formatter.dart';
+import 'package:flutter_social_app/utils/profile_clipper.dart';
+import 'package:flutter_social_app/utils/custom_icon.dart';
+import 'package:flutter_social_app/models/post.dart';
 
 class PostCard extends StatelessWidget {
-  // final Post post;
-  final post;
-  final int postId;
+  final Post post;
 
-  const PostCard({this.post, this.postId});
+  const PostCard({this.post});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
-      child: Stack(
+      margin: EdgeInsets.only(top: 10.0, left: 5.0, right: 5.0),
+      width: double.infinity,
+      child: Column(
         children: <Widget>[
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 10),
-              child: Container(
-                width: 80,
-                height: 90,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.teal, Colors.tealAccent],
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
+          Padding(
+            padding: EdgeInsets.only(top: 4.0, left: 4.0, bottom: 4.0),
+            child: Row(
+              // mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: ClipOval(
+                    clipper: ProfileClipper(),
+                    child: Image.network(
+                      'https://pbs.twimg.com/media/EKHKiqgXUAAgwav?format=jpg&name=large',
+                      width: 36.0,
+                      height: 36.0,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(0, 8),
-                      blurRadius: 8,
+                ),
+                Column(
+                  // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          post.author,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(' · '),
+                        Text(
+                          DateFormatter.formatDate(post.datePosted),
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      post.location,
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
-                  borderRadius: BorderRadius.circular(30),
                 ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 2.0, bottom: 4.0),
+            child: Text(post.content),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: 250,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.fill,
+                image: NetworkImage(
+                    'https://pbs.twimg.com/media/EKCg0tLWkAA0b0g?format=jpg&name=4096x4096'),
               ),
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(CustomIcons.favorite),
+                    onPressed: () {},
+                  ),
+                  Text(post.likes.length.toString()),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.chat_bubble),
+                    onPressed: () {},
+                  ),
+                  Text(post.comments.length.toString()),
+                ],
+              ),
+            ],
           )
         ],
+      ),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }

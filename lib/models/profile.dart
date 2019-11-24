@@ -2,12 +2,12 @@ import 'package:flutter_social_app/utils/constants_api.dart' as API;
 import 'package:flutter_social_app/utils/logger.dart';
 
 class Profile {
-  static String email;
-  static String userName;
-  static String bio;
-  static String city;
-  static String website;
-  static String image;
+  String email;
+  String userName;
+  String bio;
+  String city;
+  String website;
+  String image;
 
   void loadFromJson(Map<String, dynamic> json) {
     userName = json[API.FIELD_USERNAME];

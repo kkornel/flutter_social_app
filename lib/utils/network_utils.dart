@@ -174,7 +174,7 @@ class NetworkUtils {
     return responseData;
   }
 
-  static Future<List> getAllPosts() async {
+  static Future<List<Post>> getAllPosts() async {
     /*
     * StatusCode: 200 -> json: {bio: xqcL, city: Toronto, CA, website: www.wpp.pl, image: /media/default.jpg, username: kornel, email: kornel@wp.pl}
     */
@@ -195,7 +195,8 @@ class NetworkUtils {
       print(post);
     }
 
-    return jsonResponse;
+    // return jsonResponse;
+    return posts;
   }
 
   static Future<List> getAllComments() async {
