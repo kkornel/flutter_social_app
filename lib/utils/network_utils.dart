@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
+import 'package:flutter_social_app/models/comment.dart';
+import 'package:flutter_social_app/models/like.dart';
+import 'package:flutter_social_app/models/post.dart';
 import 'package:flutter_social_app/utils/constants_api.dart' as API;
 import 'package:http/http.dart' as http;
 import 'package:flutter_social_app/utils/user_account.dart';
@@ -169,5 +172,77 @@ class NetworkUtils {
     }
 
     return responseData;
+  }
+
+  static Future<List> getAllPosts() async {
+    /*
+    * StatusCode: 200 -> json: {bio: xqcL, city: Toronto, CA, website: www.wpp.pl, image: /media/default.jpg, username: kornel, email: kornel@wp.pl}
+    */
+
+    var response = await get('api/posts/');
+
+    final jsonResponse = jsonDecode(response.body);
+
+    print(jsonResponse);
+
+    List<Post> posts = new List();
+
+    for (var e in jsonResponse) {
+      posts.add(Post(e));
+    }
+
+    for (Post post in posts) {
+      print(post);
+    }
+
+    return jsonResponse;
+  }
+
+  static Future<List> getAllComments() async {
+    /*
+    * StatusCode: 200 -> json: {bio: xqcL, city: Toronto, CA, website: www.wpp.pl, image: /media/default.jpg, username: kornel, email: kornel@wp.pl}
+    */
+
+    var response = await get('api/comments/');
+
+    final jsonResponse = jsonDecode(response.body);
+
+    print(jsonResponse);
+
+    List<Comment> comments = new List();
+
+    for (var e in jsonResponse) {
+      comments.add(Comment(e));
+    }
+
+    for (Comment comment in comments) {
+      print(comment);
+    }
+
+    return jsonResponse;
+  }
+
+  static Future<List> getAllLikes() async {
+    /*
+    * StatusCode: 200 -> json: {bio: xqcL, city: Toronto, CA, website: www.wpp.pl, image: /media/default.jpg, username: kornel, email: kornel@wp.pl}
+    */
+
+    var response = await get('api/likes/');
+
+    final jsonResponse = jsonDecode(response.body);
+
+    print(jsonResponse);
+
+    List<Like> likes = new List();
+
+    for (var e in jsonResponse) {
+      likes.add(Like(e));
+    }
+
+    for (Like like in likes) {
+      print(like);
+    }
+
+    return jsonResponse;
   }
 }
